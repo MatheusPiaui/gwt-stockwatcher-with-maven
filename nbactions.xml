@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-GWT Dev Mode</actionName>
+            <displayName>GWT Dev Mode</displayName>
+            <goals>
+                <goal>war:exploded</goal>
+                <goal>gwt:run</goal>
+            </goals>
+            <properties>
+                <runTarget>index.html</runTarget>
+            </properties>
+        </action>
+    </actions>
