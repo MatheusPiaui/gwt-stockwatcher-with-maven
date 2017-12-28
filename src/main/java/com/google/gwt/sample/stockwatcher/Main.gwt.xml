@@ -15,4 +15,6 @@
     <entry-point class="com.google.gwt.sample.stockwatcher.client.MainEntryPoint"/>
 
     <!-- Do not define servlets here, use web.xml -->
+    
+    <extend-property name="locale" values="de"/>
 </module>

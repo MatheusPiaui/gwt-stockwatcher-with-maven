@@ -10,6 +10,7 @@ import java.util.Date;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -17,6 +18,8 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.sample.stockwatcher.client.language.StockWatcherConstants;
+import com.google.gwt.sample.stockwatcher.client.language.StockWatcherMessages;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -45,18 +48,30 @@ public class MainEntryPoint implements EntryPoint {
   private Label lastUpdatedLabel = new Label();
   private ArrayList<String> stocks = new ArrayList<String>();
   
-//  private StockPriceServiceAsync stockPriceSvc = GWT.create(StockPriceService.class);
+  private StockPriceServiceAsync stockPriceSvc = GWT.create(StockPriceService.class);
   private Label errorMsgLabel = new Label();
 
+  private StockWatcherConstants constants = GWT.create(StockWatcherConstants.class);
+  private StockWatcherMessages messages = GWT.create(StockWatcherMessages.class);
   /**
    * Entry point method.
    */
   public void onModuleLoad() {
+     // Set the window title, the header text, and the Add button text.
+    Window.setTitle(constants.stockWatcher());
+    RootPanel.get("appTitle").add(new Label(constants.stockWatcher()));
+    addStockButton = new Button(constants.add());
+      
     // Create table for stock data.
-    stocksFlexTable.setText(0, 0, "Symbol");
-    stocksFlexTable.setText(0, 1, "Price");
-    stocksFlexTable.setText(0, 2, "Change");
-    stocksFlexTable.setText(0, 3, "Remove");
+//    stocksFlexTable.setText(0, 0, "Symbol");
+//    stocksFlexTable.setText(0, 1, "Price");
+//    stocksFlexTable.setText(0, 2, "Change");
+//    stocksFlexTable.setText(0, 3, "Remove");
+    
+    stocksFlexTable.setText(0, 0, constants.symbol());
+    stocksFlexTable.setText(0, 1, constants.price());
+    stocksFlexTable.setText(0, 2, constants.change());
+    stocksFlexTable.setText(0, 3, constants.remove());
 
     // Add styles to elements in the stock list table.
     stocksFlexTable.setCellPadding(6);
@@ -75,7 +90,8 @@ public class MainEntryPoint implements EntryPoint {
     errorMsgLabel.setStyleName("errorMessage");
     errorMsgLabel.setVisible(false);
 
-    mainPanel.add(errorMsgLabel);    mainPanel.add(stocksFlexTable);
+    mainPanel.add(errorMsgLabel);
+    mainPanel.add(stocksFlexTable);
     mainPanel.add(addPanel);
     mainPanel.add(lastUpdatedLabel);
 
@@ -122,9 +138,10 @@ public class MainEntryPoint implements EntryPoint {
 
     // Stock code must be between 1 and 10 chars that are numbers, letters, or dots.
     if (!symbol.matches("^[0-9a-zA-Z\\.]{1,10}$")) {
-      Window.alert("'" + symbol + "' is not a valid symbol.");
-      newSymbolTextBox.selectAll();
-      return;
+//      Window.alert("'" + symbol + "' is not a valid symbol.");
+        Window.alert(messages.invalidSymbol(symbol));
+        newSymbolTextBox.selectAll();
+        return;
     }
 
     newSymbolTextBox.setText("");
@@ -163,12 +180,14 @@ public class MainEntryPoint implements EntryPoint {
   boolean serverAvailable = true;
 
   void refreshWatchList() {
-//    if (serverAvailable) {
+    if (serverAvailable) {
+      refreshWatchListServer();
+    } else {
+      refreshWatchListClient();
+    }
+//    refreshWatchListClient();
 //      refreshWatchListServer();
-//    } else {
-//      refreshWatchListClient();
-//    }
-    refreshWatchListClient();
+
   }
 
   /**
@@ -190,34 +209,44 @@ public class MainEntryPoint implements EntryPoint {
     updateTable(prices);
   }
   
-//  private void refreshWatchListServer() {
-//    // Initialize the service proxy.
-//    if (stockPriceSvc == null) {
-//      stockPriceSvc = GWT.create(StockPriceService.class);
-//    }
-//
-//     // Set up the callback object.
-//    AsyncCallback<StockPrice[]> callback = new AsyncCallback<StockPrice[]>() {
-//      public void onFailure(Throwable caught) {
-//        // If the stock code is in the list of delisted codes, display an error message.
-//        String details = caught.getMessage();
+  void refreshWatchListServer() {
+    // Initialize the service proxy.
+    if (stockPriceSvc == null) {
+      stockPriceSvc = GWT.create(StockPriceService.class);
+    }
+
+     // Set up the callback object.
+    AsyncCallback<StockPrice[]> callback = new AsyncCallback<StockPrice[]>() {
+      public void onFailure(Throwable caught) {
+        // If the stock code is in the list of delisted codes, display an error message.
+        String details = caught.getMessage();
+        
 //        if (caught instanceof DelistedException) {
+//            
 //          details = "Company '" + ((DelistedException)caught).getSymbol() + "' was delisted";
 //          errorMsgLabel.setText("Error: " + details);
 //          errorMsgLabel.setVisible(true);
+//          
 //        } else {
 //          serverAvailable = false;
 //        }
-//      }
-//
-//      public void onSuccess(StockPrice[] result) {
-//        updateTable(result);
-//      }
-//    };
-//
-//    // Make the call to the stock price service.
-//    stockPriceSvc.getPrices(stocks.toArray(new String[0]), callback);
-//  }  
+        if (caught instanceof DelistedException) {
+            details = "Company '" + ((DelistedException)caught).getSymbol() + "' was delisted";
+        }
+
+        errorMsgLabel.setText("Error: " + details);
+        errorMsgLabel.setVisible(true);
+        
+      }
+
+      public void onSuccess(StockPrice[] result) {
+        updateTable(result);
+      }
+    };
+
+    // Make the call to the stock price service.
+    stockPriceSvc.getPrices(stocks.toArray(new String[0]), callback);
+  }  
 
   /**
    * Update the Price and Change fields all the rows in the stock table.
@@ -232,6 +261,7 @@ public class MainEntryPoint implements EntryPoint {
     // Display timestamp showing last refresh.
     lastUpdatedLabel.setText("Last update : "
         + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
+//    lastUpdatedLabel.setText(messages.lastUpdate(new Date()));
 
     // Clear any errors.
     errorMsgLabel.setVisible(false);    
