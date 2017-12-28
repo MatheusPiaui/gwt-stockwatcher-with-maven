@@ -34,10 +34,11 @@ public class StockPriceServiceImpl extends RemoteServiceServlet implements Stock
             
             double price = rnd.nextDouble() * MAX_PRICE;
             double change = price * MAX_PRICE_CHANGE * (rnd.nextDouble() * 2f - 1f);
-
+    
+            
             prices[i] = new StockPrice(symbols[i], price, change);
         }
 
         return prices;
-  }
+    }
 }

@@ -180,13 +180,13 @@ public class MainEntryPoint implements EntryPoint {
   boolean serverAvailable = true;
 
   void refreshWatchList() {
-    if (serverAvailable) {
-      refreshWatchListServer();
-    } else {
-      refreshWatchListClient();
-    }
-//    refreshWatchListClient();
+//    if (serverAvailable) {
 //      refreshWatchListServer();
+//    } else {
+//      refreshWatchListClient();
+//    }
+//    refreshWatchListClient();
+      refreshWatchListServer();
 
   }
 
@@ -242,6 +242,7 @@ public class MainEntryPoint implements EntryPoint {
       public void onSuccess(StockPrice[] result) {
         updateTable(result);
       }
+      
     };
 
     // Make the call to the stock price service.
@@ -259,9 +260,9 @@ public class MainEntryPoint implements EntryPoint {
     }
 
     // Display timestamp showing last refresh.
-    lastUpdatedLabel.setText("Last update : "
-        + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
-//    lastUpdatedLabel.setText(messages.lastUpdate(new Date()));
+//    lastUpdatedLabel.setText("Last update : "
+//        + DateTimeFormat.getMediumDateTimeFormat().format(new Date()));
+    lastUpdatedLabel.setText(messages.lastUpdate(new Date()));
 
     // Clear any errors.
     errorMsgLabel.setVisible(false);    
