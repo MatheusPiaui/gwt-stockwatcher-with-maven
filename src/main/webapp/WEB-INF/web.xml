@@ -11,11 +11,20 @@
         <servlet-name>stockPriceServiceImpl</servlet-name>
         <servlet-class>com.google.gwt.sample.stockwatcher.server.StockPriceServiceImpl</servlet-class>
     </servlet>
-    
    
-    
     <servlet-mapping>
         <servlet-name>stockPriceServiceImpl</servlet-name>
         <url-pattern>/com.google.gwt.sample.stockwatcher.Main/stockPrices</url-pattern>
+    </servlet-mapping>
+    
+    <!--json-->
+    <servlet>
+        <servlet-name>jsonStockData</servlet-name>
+        <servlet-class>com.google.gwt.sample.stockwatcher.server.JsonStockData</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>jsonStockData</servlet-name>
+        <url-pattern>/com.google.gwt.sample.stockwatcher.Main/jsonStockPrices</url-pattern>
     </servlet-mapping>
 </web-app>
